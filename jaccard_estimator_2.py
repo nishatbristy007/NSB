@@ -333,7 +333,7 @@ def distEstimatorMaster(k, n_taxa):
                 if (i == 0 and j == 3) or (i == 1 and j == 2):
                     dist_matrices[count] = estimateDistance(J2,k)
                 else :
-                    dist_matrices[count] = estimateDistance2(J1, J2,k)
+                    dist_matrices[count] = estimateDistance(J2,k)
                 sys.stderr.write("dist = {0}".format(dist_matrices[count][0][1]))
                 fsave.write(str(dist_matrices[count]))
                 fsave.write("\n")
