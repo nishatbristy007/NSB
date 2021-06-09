@@ -158,7 +158,7 @@ def saveEncoding(k):
         set1 = np.array([encodeKmer(kmer.split()[0]) for kmer in kmers], dtype = np.int64)
         #set1 = np.array([encodeKmer(kmers.pop().split()[0]) for i in range(len(kmers))], dtype = np.int64)
         sys.stderr.write('Time taken for encoding {0}.\n'.format(time.time()-start))
-
+        
         start = time.time()
         
         with open("encodedfiles/"+taxaname+'.pickle', 'wb') as f:
