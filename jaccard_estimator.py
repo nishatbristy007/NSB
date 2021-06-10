@@ -33,7 +33,7 @@ def replaceEncodedKmer(kmer,regex_,encode_base,k_fmt):
 
 def encodeKmer(kmer):
     global first_bit_trans, second_bit_trans
-    return np.int64(int(kmer.translate(first_bit_trans)+kmer.translate(second_bit_trans), 2))
+    return int(kmer.translate(first_bit_trans)+kmer.translate(second_bit_trans), 2)
 
 def A_to_C(x,size,mask):
     x1= (x & (mask<<size)) >> size
@@ -42,7 +42,7 @@ def A_to_C(x,size,mask):
     xnew=x2 & xnew 
     x1=x1 ^ xnew
     x2=x2 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
     #return int((x1 << size) + x2)
 
 def C_to_A(x,size,mask):
@@ -52,7 +52,7 @@ def C_to_A(x,size,mask):
     xnew=x1 & xnew 
     x1=x1 ^ xnew
     x2=x2 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
 
 def A_to_G(x,size,mask):
     #mask=int(('1'*size),2)
@@ -61,7 +61,7 @@ def A_to_G(x,size,mask):
     xnew=x1 ^ mask
     xnew=x2 & xnew 
     x1=x1 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
     #return int((x1 << size) + x2)
 
 def G_to_A(x,size,mask):
@@ -71,7 +71,7 @@ def G_to_A(x,size,mask):
     x2 = x & mask
     
     x1 = x1 & (x1 ^ x2)
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
     
 def A_to_T(x,size,mask):
     #mask=int(('1'*size),2)
@@ -80,7 +80,7 @@ def A_to_T(x,size,mask):
     xnew=x1 ^ mask
     xnew=x2 & xnew 
     x2=x2 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
     #return int((x1 << size) + x2)
 
 def T_to_A(x,size,mask):
@@ -89,7 +89,7 @@ def T_to_A(x,size,mask):
     x2 = x & mask
     xnew=(x1 | x2) ^ mask
     x2=x2 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
 
 def C_to_G(x,size,mask):
     #mask=int(('1'*size),2)
@@ -98,7 +98,7 @@ def C_to_G(x,size,mask):
     xnew=x2 ^ mask
     xnew=x1 & xnew 
     x2=x2 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
     #return int((x1 << size) + x2)
 
 def G_to_C(x,size,mask):
@@ -108,7 +108,7 @@ def G_to_C(x,size,mask):
     x2 = x & mask
 
     x2 = x2 & (x1 ^ x2)
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
 
 def C_to_T(x,size,mask):
     #mask=int(('1'*size),2)
@@ -117,7 +117,7 @@ def C_to_T(x,size,mask):
     xnew=x2 ^ mask
     xnew=x1 & xnew 
     x1=x1 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
 
 def T_to_C(x,size,mask):
     #mask=int(('1'*size),2)
@@ -125,7 +125,7 @@ def T_to_C(x,size,mask):
     x2 = x & mask
     xnew=(x1 | x2) ^ mask
     x1=x1 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
     
 def G_to_T(x,size,mask):
     #mask=int(('1'*size),2)
@@ -135,7 +135,7 @@ def G_to_T(x,size,mask):
     xnew=x1 ^ x2
     x1= x1 & xnew
     x2 = x2 & xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
 
 def T_to_G(x,size,mask):
     #mask=int(('1'*size),2)
@@ -144,14 +144,14 @@ def T_to_G(x,size,mask):
     xnew=(x1 | x2) ^ mask
     x1=x1 ^ xnew
     x2=x2 ^ xnew
-    return np.int64((x1 << size) + x2)
+    return (x1 << size) + x2
 
 def saveEncoding_(folderpath, file):
     sys.stderr.write('Encoding {0}...\n'.format(file))
     taxaname=file.split(".")[0]
     kmers = open(folderpath+"/"+taxaname+".txt", 'r')
     start=time.time()
-    set1 = np.array([encodeKmer(kmer.split()[0]) for kmer in kmers], dtype = np.int64)
+    set1 = [encodeKmer(kmer.split()[0]) for kmer in kmers]
     sys.stderr.write('Time taken for encoding {0}.\n'.format(time.time()-start))
     start = time.time()        
     with open(encode_dir+"/"+taxaname+'.pickle', 'wb') as f:
