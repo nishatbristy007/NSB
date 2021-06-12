@@ -151,7 +151,7 @@ def saveEncoding_(folderpath, file):
     taxaname=file.split(".")[0]
     kmers = open(folderpath+"/"+taxaname+".txt", 'r')
     start=time.time()
-    set1 = [encodeKmer(kmer.split()[0]) for kmer in kmers]
+    set1 = np.array([encodeKmer(kmer.split()[0]) for kmer in kmers], dtype = np.int64)
     sys.stderr.write('Time taken for encoding {0}.\n'.format(time.time()-start))
     start = time.time()        
     with open(encode_dir+"/"+taxaname+'.pickle', 'wb') as f:
@@ -171,7 +171,7 @@ def saveEncoding(n_pool):
     folderpath="kmer_dir"
     files = sorted(os.listdir(folderpath))
     
-    pool_encode = mp.Pool(n_pool)
+    pool_encode = mp.Pool(2)
     results_encode = [pool_encode.apply_async(saveEncoding_, args=(folderpath,file,)) for file in files]#(len(pathnames))]
     for result in results_encode:
         result.get(9999999)
@@ -215,7 +215,8 @@ def replaceEncoding(file,func,k,mask,i,j,encode_dir_replaced):
     
     sys.stderr.write('Encoding starting for {0}...\n'.format(file+base_str[i]+base_str[j]))
     start=time.time()
-    set2=np.array([func(kmer, k,mask) for kmer in set1],dtype=np.int64)
+    set2=np.unique(func(set1, k, mask))
+    #set2=np.array([func(kmer, k,mask) for kmer in set1],dtype=np.int64)
     sys.stderr.write('Time taken for encoding {0}.\n'.format(time.time()-start))
 
     start = time.time()
@@ -288,7 +289,7 @@ def clcJaccard(folderpath, files, i, j,filename):
         set2 = pickle.load(f)[tmp_name]
     
     start = time.time()
-    intersec = np.intersect1d(set1,set2)
+    intersec = np.intersect1d(set1,set2,assume_unique=True)
     intersec_len=len(intersec)
     sys.stderr.write('Time taken for intersection {0}.\n'.format(time.time()-start))
     union_len = len(set1)+len(set2) - intersec_len
