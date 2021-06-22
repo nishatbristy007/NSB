@@ -171,6 +171,7 @@ def replacer(replaced_dir,two_way_dir,x,y):
 # For supporting the functionality of skmer and mash. 
 class Mash_Skmer:
     def __init__(self, args,  file_names, freqs):
+        self.x = args.x
         self.k = args.k
         self.s = args.s
         self.file_names = file_names
@@ -226,7 +227,7 @@ class Mash_Skmer:
             count += 1
         d = np.zeros((12,self.n_taxa,self.n_taxa))
         for i in range(len(d)):
-            if i == 2 or i==4 or i==7 or  i==9:
+            if i == 2 or i==4 or i==7 or  i==9 or self.x:
                 d[i] = (d_[0] - d_[i])
             else:
                 d[i] = 2*(d_[0] - d_[i])
@@ -252,6 +253,7 @@ class Mash_Skmer:
 
 class Jellyfish:
     def __init__(self, args, file_names, freqs):
+        self.x = args.x
         self.k = args.k
         self.s = args.s
         self.n_pool = args.p
@@ -324,33 +326,28 @@ class Jellyfish:
     def jellyfish_runner(self):
         self.createKmerStats()
         
-        d_ = jac.distEstimatorMaster(self.k, self.n_taxa, self.n_pool)
+        d_ = jac.distEstimatorMaster(self.k, self.n_taxa, self.n_pool, self.x)
         print("back from jaccard estimator")
 
-        
-        d = np.zeros((12,self.n_taxa,self.n_taxa))
-        for i in range(len(d)):
-            if i == 2 or i==4 or i==7 or  i==9:
-                d[i] = (d_[0] - d_[i])
-            else:
-                d[i] = 2*(d_[0] - d_[i])
-        print("dist")
+    
+        d = (d_[0] - d_[1:])
+
+        if not self.x:
+            d *= 2
+            for i in [2,4,7,9]:
+                d[i] /= 2
         
         phylo_dist_mat = np.ndarray((self.n_taxa,self.n_taxa),dtype=float)
         for i in range(self.n_taxa):
             phylo_dist_mat[i][i] = 0.0
         for i in range(self.n_taxa-1):
             for j in range(i+1,self.n_taxa):
-                print("freqs")
                 f = self.freqs[i] if self.freqs[i][4] > self.freqs[j][4] else self.freqs[j] #(freq[i]+freq[j])/2
-                print("freqs2")
                 f /= f[4]
-                print(f)
                 m = [[f[0] - (d[0][i][j]+d[1][i][j]+d[2][i][j]),d[0][i][j],d[1][i][j],d[2][i][j]],
                     [d[3][i][j],f[1] - (d[3][i][j]+d[4][i][j]+d[5][i][j]),d[4][i][j],d[5][i][j]],
                     [d[6][i][j],d[7][i][j],f[2] - (d[6][i][j]+d[7][i][j]+d[8][i][j]),d[8][i][j]],
                     [d[9][i][j],d[10][i][j],d[11][i][j],f[3] - (d[9][i][j]+d[10][i][j]+d[11][i][j])]]
-                print("going to tk4")
                 phylo_dist_mat[i][j] = phylo_dist_mat[j][i] = TK4(m, f, d_[0][i][j])
         print(phylo_dist_mat)
         
@@ -415,6 +412,7 @@ def main():
     parser_ref.add_argument('-k', type=int, choices=list(range(1, 32)), default=31, help='K-mer length [1-31]. ' +
                                                                                          'Default: 31', metavar='K')
     parser_ref.add_argument('-s', type=int, default=10 ** 7, help='Sketch size. Default: 100000')
+    parser_ref.add_argument('-x', action='store_true', help='Turn on pproximation for AC and AG.')
     parser_ref.add_argument('-p', type=int, choices=list(range(1, mp.cpu_count() + 1)), default=mp.cpu_count(),
                             help='Max number of processors to use [1-{0}]. '.format(mp.cpu_count()) +
                                  'Default for this machine: {0}'.format(mp.cpu_count()), metavar='P')
