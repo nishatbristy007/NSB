@@ -137,7 +137,6 @@ def TK4(m,freq,Hamming):
         return 0
     sums = np.sum(m,axis = 1)
     w = (freq[0]+freq[3])/freq[4]
-    print(w)
     R = (m[0][1] + m[1][0] + m[2][3] + m[3][2])/4 	#R = (m[0][1]+m[2][3])/2
     P = (m[0][2] + m[2][0] + m[1][3] + m[3][1])/4	#P = (m[0][2]+m[1][3])/2
     TwoQ1 = (m[0][3] + m[3][0])/2				#TwoQ1 = m[0][3]/2
@@ -145,6 +144,13 @@ def TK4(m,freq,Hamming):
     s1_s3 = w - (P+R)/2 - TwoQ1   				#s1_s3 = f[0] + f[3] - sums[0] - sums[3] + m[0][0] + m[3][3] #
     s2_s4 = 1 - w - (P+R)/2 - TwoQ2					#s2_s4 = f[2] + f[3] - sums[1] - sums[2] + m[2][2] + m[1][1] #
     
+    print("w", w)
+    print("P", P)
+    print("Q1", TwoQ1)
+    print("Q2", TwoQ2)
+    print("R", R)
+    print("S1",s1_s3)
+    print("S2",s2_s4)
     ln1 = -1/4*np.log(((s1_s3-TwoQ1)*(s2_s4-TwoQ2)-((P-R)/2)**2)/(w*(1-w)))
     ln2 = -1/4*np.log((1-((P+R)/(2*w*(1-w))))**(8*w*(1-w)-1))
     return ln1+ln2
@@ -329,7 +335,7 @@ class Jellyfish:
         d_ = jac.distEstimatorMaster(self.k, self.n_taxa, self.n_pool, self.x)
         print("back from jaccard estimator")
 
-    
+        
         d = (d_[0] - d_[1:])
 
         if not self.x:

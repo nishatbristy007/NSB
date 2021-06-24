@@ -293,6 +293,7 @@ def clcJaccard(folderpath, files, i, j,filename):
     intersec_len=len(intersec)
     sys.stderr.write('Time taken for intersection {0}.\n'.format(time.time()-start))
     union_len = len(set1)+len(set2) - intersec_len
+    print(i,j,len(set1),len(set2),intersec_len)
     jaccard=intersec_len/union_len 
     fjac = open(filename,'a')
     fjac.write(str(jaccard)+" "+str(i)+" "+str(j)+"\n")
@@ -374,6 +375,7 @@ def distEstimatorMaster(k, n_taxa, n_pool, approx_flag):
     dist_matrices[10] = dist_matrices[3]
     dist_matrices[8] = dist_matrices[5]
     
+    dist_matrices[0] = (2*dist_matrices[1] + 2* dist_matrices[2] + dist_matrices[3] + dist_matrices[5])/5
     #print("here")
     
     #shutil.rmtree(encode_dir)
