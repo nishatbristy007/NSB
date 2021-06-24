@@ -246,10 +246,6 @@ def saveReplacedEncoding(k, i, j, n_pool):
 def estimateDistance(J, k):
     return 1 - ((2*J/(1+J))**(1/k))
 
-def estimateDistance2(J1, J2, k):
-    return 1 - (((4*J2/(1+J2)) - (2*J1/(1+J1)))**(1/k))
-
-
 def sortintersection(x,y):
     i=0
     j=0
@@ -327,7 +323,7 @@ def preprocess(k, n_taxa, n_pool):
                 saveReplacedEncoding(k,i,j,n_pool)
 
 
-def distEstimatorMaster(k, n_taxa, n_pool, approx_flag):
+def distEstimatorMaster(k, n_taxa, n_pool):
     global base_str, encode_dir, encode_dir_replaced
     
     #......... PREPROCESS .........
@@ -355,10 +351,7 @@ def distEstimatorMaster(k, n_taxa, n_pool, approx_flag):
                 token = base_str[i]+base_str[j]
                 encode_dir_replaced = "encodedfiles_replaced"+base_str[i]+base_str[j]
                 J2 = estimateJaccard(encode_dir_replaced,n_taxa, token, n_pool)
-                if (i == 0 and j == 3) or (i == 1 and j == 2) or not approx_flag:
-                    dist_matrices[count] = estimateDistance(J2,k)
-                else :
-                    dist_matrices[count] = estimateDistance2(J1,J2,k)
+                dist_matrices[count] = estimateDistance(J2,k)
                 #print(i,j,J1[0][1], J2[0][1],dist_matrices[count][0][1])
                 #sys.stderr.write("dist = {0}".format(dist_matrices[count][0][1]))
                 fsave.write(str(dist_matrices[count]))
