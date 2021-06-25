@@ -137,7 +137,6 @@ def TK4(m,freq,Hamming):
         return 0
     sums = np.sum(m,axis = 1)
     w = (freq[0]+freq[3])/freq[4]
-    print(w)
     R = (m[0][1] + m[1][0] + m[2][3] + m[3][2])/4 	#R = (m[0][1]+m[2][3])/2
     P = (m[0][2] + m[2][0] + m[1][3] + m[3][1])/4	#P = (m[0][2]+m[1][3])/2
     TwoQ1 = (m[0][3] + m[3][0])/2				#TwoQ1 = m[0][3]/2
@@ -145,6 +144,13 @@ def TK4(m,freq,Hamming):
     s1_s3 = w - (P+R)/2 - TwoQ1   				#s1_s3 = f[0] + f[3] - sums[0] - sums[3] + m[0][0] + m[3][3] #
     s2_s4 = 1 - w - (P+R)/2 - TwoQ2					#s2_s4 = f[2] + f[3] - sums[1] - sums[2] + m[2][2] + m[1][1] #
     
+    print("w", w)
+    print("P", P)
+    print("Q1", TwoQ1)
+    print("Q2", TwoQ2)
+    print("R", R)
+    print("S1",s1_s3)
+    print("S2",s2_s4)
     ln1 = -1/4*np.log(((s1_s3-TwoQ1)*(s2_s4-TwoQ2)-((P-R)/2)**2)/(w*(1-w)))
     ln2 = -1/4*np.log((1-((P+R)/(2*w*(1-w))))**(8*w*(1-w)-1))
     return ln1+ln2
@@ -224,13 +230,10 @@ class Mash_Skmer:
                     dist = self.mash_dist(sequences[i], sequences[j])
                     d_[count][i][j] = d_[count][j][i] = dist
             count += 1
-        d = np.zeros((12,self.n_taxa,self.n_taxa))
-        for i in range(len(d)):
-            if i == 2 or i==4 or i==7 or  i==9:
-                d[i] = (d_[0] - d_[i])
-            else:
-                d[i] = 2*(d_[0] - d_[i])
-        
+
+        d = 2*(d_[0] - d_[1:])
+        for i in [2,4,7,9]:
+            d[i] /= 2
         
         phylo_dist_mat = np.ndarray((self.n_taxa,self.n_taxa),dtype=float)
         for i in range(self.n_taxa):
@@ -325,32 +328,22 @@ class Jellyfish:
         self.createKmerStats()
         
         d_ = jac.distEstimatorMaster(self.k, self.n_taxa, self.n_pool)
-        print("back from jaccard estimator")
-
         
-        d = np.zeros((12,self.n_taxa,self.n_taxa))
-        for i in range(len(d)):
-            if i == 2 or i==4 or i==7 or  i==9:
-                d[i] = (d_[0] - d_[i])
-            else:
-                d[i] = 2*(d_[0] - d_[i])
-        print("dist")
-        
+        d = 2*(d_[0] - d_[1:])
+        for i in [2,4,7,9]:
+            d[i] /= 2
+    
         phylo_dist_mat = np.ndarray((self.n_taxa,self.n_taxa),dtype=float)
         for i in range(self.n_taxa):
             phylo_dist_mat[i][i] = 0.0
         for i in range(self.n_taxa-1):
             for j in range(i+1,self.n_taxa):
-                print("freqs")
                 f = self.freqs[i] if self.freqs[i][4] > self.freqs[j][4] else self.freqs[j] #(freq[i]+freq[j])/2
-                print("freqs2")
                 f /= f[4]
-                print(f)
                 m = [[f[0] - (d[0][i][j]+d[1][i][j]+d[2][i][j]),d[0][i][j],d[1][i][j],d[2][i][j]],
                     [d[3][i][j],f[1] - (d[3][i][j]+d[4][i][j]+d[5][i][j]),d[4][i][j],d[5][i][j]],
                     [d[6][i][j],d[7][i][j],f[2] - (d[6][i][j]+d[7][i][j]+d[8][i][j]),d[8][i][j]],
                     [d[9][i][j],d[10][i][j],d[11][i][j],f[3] - (d[9][i][j]+d[10][i][j]+d[11][i][j])]]
-                print("going to tk4")
                 phylo_dist_mat[i][j] = phylo_dist_mat[j][i] = TK4(m, f, d_[0][i][j])
         print(phylo_dist_mat)
         

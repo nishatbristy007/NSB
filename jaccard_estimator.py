@@ -66,7 +66,7 @@ def A_to_G(x,size,mask):
 
 def G_to_A(x,size,mask):
     #mask=int(('1'*size),2)
-    #print("{0:b}".format(mask))
+    ##print("{0:b}".format(mask))
     x1= (x & (mask<<size)) >> size
     x2 = x & mask
     
@@ -103,7 +103,7 @@ def C_to_G(x,size,mask):
 
 def G_to_C(x,size,mask):
     #mask=int(('1'*size),2)
-    #print("{0:b}".format(mask))
+    ##print("{0:b}".format(mask))
     x1= (x & (mask<<size)) >> size
     x2 = x & mask
 
@@ -129,7 +129,7 @@ def T_to_C(x,size,mask):
     
 def G_to_T(x,size,mask):
     #mask=int(('1'*size),2)
-    #print("{0:b}".format(mask))
+    ##print("{0:b}".format(mask))
     x1= (x & (mask<<size)) >> size
     x2 = x & mask
     xnew=x1 ^ x2
@@ -236,7 +236,7 @@ def saveReplacedEncoding(k, i, j, n_pool):
     files = sorted(os.listdir(encode_dir))
     
     pool_sketch = mp.Pool(n_pool)
-    #print(sequences)
+    ##print(sequences)
     results_sketch = [pool_sketch.apply_async(replaceEncoding, args=(file,func,k,mask,i,j,encode_dir_replaced,)) for file in files]#(len(pathnames))]
     for result in results_sketch:
         result.get(9999999)
@@ -245,10 +245,6 @@ def saveReplacedEncoding(k, i, j, n_pool):
             
 def estimateDistance(J, k):
     return 1 - ((2*J/(1+J))**(1/k))
-
-def estimateDistance2(J1, J2, k):
-    return 1 - (((4*J2/(1+J2)) - (2*J1/(1+J1)))**(1/k))
-
 
 def sortintersection(x,y):
     i=0
@@ -276,7 +272,7 @@ def readmatrix(filename, n_taxa):
                 i = int(token[1].strip())
                 j = int(token[2].strip())
                 jac = float(token[0].strip())
-                print(i,j,jac)
+                #print(i,j,jac)
                 J[i][j] = jac
                 J[j][i] = jac
         f.close()
@@ -293,6 +289,7 @@ def clcJaccard(folderpath, files, i, j,filename):
     intersec_len=len(intersec)
     sys.stderr.write('Time taken for intersection {0}.\n'.format(time.time()-start))
     union_len = len(set1)+len(set2) - intersec_len
+    print(i,j,len(set1),len(set2),intersec_len)
     jaccard=intersec_len/union_len 
     fjac = open(filename,'a')
     fjac.write(str(jaccard)+" "+str(i)+" "+str(j)+"\n")
@@ -354,15 +351,13 @@ def distEstimatorMaster(k, n_taxa, n_pool):
                 token = base_str[i]+base_str[j]
                 encode_dir_replaced = "encodedfiles_replaced"+base_str[i]+base_str[j]
                 J2 = estimateJaccard(encode_dir_replaced,n_taxa, token, n_pool)
-                if (i == 0 and j == 3) or (i == 1 and j == 2):
-                    dist_matrices[count] = estimateDistance(J2,k)
-                else :
-                    dist_matrices[count] = estimateDistance(J2,k)
+                dist_matrices[count] = estimateDistance(J2,k)
+                #print(i,j,J1[0][1], J2[0][1],dist_matrices[count][0][1])
                 #sys.stderr.write("dist = {0}".format(dist_matrices[count][0][1]))
                 fsave.write(str(dist_matrices[count]))
                 fsave.write("\n")
                 count += 1
-    print("jaccards done")
+    #print("jaccards done")
     # --   --                             #  1  2  3  4  5  6  7  8  9  10  11  12
     dist_matrices[4] = dist_matrices[1]   # AC,AG,AT,CA,CG,CT,GA,GC,GT, TA, TC, TG
     dist_matrices[9] = dist_matrices[1]
@@ -373,7 +368,8 @@ def distEstimatorMaster(k, n_taxa, n_pool):
     dist_matrices[10] = dist_matrices[3]
     dist_matrices[8] = dist_matrices[5]
     
-    print("here")
+    dist_matrices[0] = (2*dist_matrices[1] + 2* dist_matrices[2] + dist_matrices[3] + dist_matrices[5])/5
+    #print("here")
     
     #shutil.rmtree(encode_dir)
     #shutil.rmtree(encode_dir_replaced)
