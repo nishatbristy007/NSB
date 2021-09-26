@@ -295,7 +295,7 @@ def clcJaccard(folderpath, files, i, j,filename,freqs_1,freqs_2,subs_1,subs_2,k)
     if subs_1 == 0 and subs_2 == 0:
         w = freqs_1[4]/freqs_1[4]
     else:
-        w = (freqs_1[subs_1]+freqs_1[subs_2])/freqs_1[4]
+        w = (freqs_1[0]+freqs_1[3])/freqs_1[4]
     q = (3/2)*w**2 + (1/2) - w
     if subs_1 ==0 and (subs_2==1 or subs_2==2):
         expected_rand_match = round(4*freqs_1[4]*freqs_2[4]*q**k)
