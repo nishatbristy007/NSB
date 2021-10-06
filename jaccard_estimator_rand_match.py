@@ -23,7 +23,7 @@ f_int.close()
 first_bit_trans = str.maketrans('ACGT', '0110')
 second_bit_trans = str.maketrans('ACGT', '1010')
 
-csv_path = "/home/bayzid/Documents/Bristy/Simulations/Bombus/dist_params.csv"
+csv_path = "dist_params.csv"
 
 if os.path.isfile(csv_path):
     file_csv = open(csv_path,"a")
@@ -322,12 +322,12 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
         print("len = ",L)
         if subs_1 == 0 and subs_2 == 3:
             #q = (3/2)*w**2 + (1/2) - w   
-            for i in range(1,k+1):
+            for i in range(0,k+1):
                 expected_rand_match += (1-(1-w**(k-i)*((1-w)/2)**i)**(L))**2*comb(k,i)*(2**i)
             print("AT rand match = ",expected_rand_match)
         elif subs_1 == 1 and subs_2 == 2:
             #q = (3/2)*w**2 + 1 - 2*w
-            for i in range(1,k+1):
+            for i in range(0,k+1):
                 expected_rand_match += (1-(1-(1-w)**(k-i)*((w)/2)**i)**(L))**2*comb(k,i)*(2**i)
             print("CG rand match = ",expected_rand_match)
         #expected_rand_match = round(freqs_1[4]*freqs_2[4]*q**k)
