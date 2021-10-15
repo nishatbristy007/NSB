@@ -334,7 +334,7 @@ class Jellyfish:
         return kmer_dir
     
     def jellyfish_runner(self):
-        #self.createKmerStats()
+        self.createKmerStats()
         
         d_ = jac.distEstimatorMaster(self.k, self.n_taxa, self.n_pool,self.freqs)
         
@@ -368,9 +368,9 @@ def reference(args):
                    if True in (fnmatch.fnmatch(f, '*' + form) for form in formats)]
 
     print('[Tool] Building 2way genome with {0} processors..'.format(str(args.p)))
-    #two_way_genome_builder(args.input_dir, os.path.join(os.getcwd(), 'ref_dir_2way'), args)
+    two_way_genome_builder(args.input_dir, os.path.join(os.getcwd(), 'ref_dir_2way'), args)
     print('[Tool] Building stats with {0} processors..'.format(str(args.p)))
-    #build_stats(os.path.join(os.getcwd(), 'ref_dir_2way'), args)
+    build_stats(os.path.join(os.getcwd(), 'ref_dir_2way'), args)
     
     freqs, names = clcFreqs()
     if args.m == 1 or args.m == 2:  # Run Jellyfish
