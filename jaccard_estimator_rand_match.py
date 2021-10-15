@@ -303,34 +303,40 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
     # -- Count random matches ---
     q = 0.25
     
-    w = (freqs_1[0]+freqs_1[3])/freqs_1[4]
+    w1 = (freqs_1[0]+freqs_1[3])/freqs_1[4]
+    w2 = (freqs_2[0]+freqs_2[3])/freqs_2[4]
     #w = 0.6
-    print(w)
+    print("w1", w1)
+    print("w2", w2)
     expected_rand_match = 0
+
+    L1=freqs_1[4]
+    L2=freqs_2[4]
+    #L1=2555170
+    #L2=4339805
     if subs_1 ==0 and (subs_2==1 or subs_2==2):
         #q = (1/2)*w**2 + (1/2) - w/2
         #print(subs_1, subs_2,q)
         #expected_rand_match = round(freqs_1[4]*freqs_2[4]*q**k)
-        L = (freqs_1[4]+freqs_2[4])/2  # divide by  2 due to two way genome.
         for i in range(k+1):
             for j in range(k+1-i):
-                expected_rand_match += (1-(1-((1/2)**i)*((w/2)**j)*((1-w)/2)**(k-i-j))**(L))**2*comb(k,i)*comb(k-i,j)
+                expected_rand_match += (1-(1-((1/2)**i)*((w1/2)**j)*((1-w1)/2)**(k-i-j))**(L1))*(1-(1-((1/2)**i)*((w2/2)**j)*((1-w2)/2)**(k-i-j))**(L2))*comb(k,i)*comb(k-i,j)
 
         print("AC AG rand match = ",expected_rand_match)
     else:
-        L = (freqs_1[4]+freqs_2[4])/2
-        print("len = ",L)
+        print("len = ",L1,L2)
         if subs_1 == 0 and subs_2 == 3:
             #q = (3/2)*w**2 + (1/2) - w   
             for i in range(0,k+1):
-                expected_rand_match += (1-(1-w**(k-i)*((1-w)/2)**i)**(L))**2*comb(k,i)*(2**i)
+                expected_rand_match += (1-(1-w1**(k-i)*((1-w1)/2)**i)**(L1))*(1-(1-w2**(k-i)*((1-w2)/2)**i)**(L2))*comb(k,i)*(2**i)
             print("AT rand match = ",expected_rand_match)
         elif subs_1 == 1 and subs_2 == 2:
             #q = (3/2)*w**2 + 1 - 2*w
             for i in range(0,k+1):
-                expected_rand_match += (1-(1-(1-w)**(k-i)*((w)/2)**i)**(L))**2*comb(k,i)*(2**i)
+                expected_rand_match += (1-(1-(1-w1)**(k-i)*((w1)/2)**i)**(L1))*(1-(1-(1-w2)**(k-i)*((w2)/2)**i)**(L2))*comb(k,i)*(2**i)
             print("CG rand match = ",expected_rand_match)
         #expected_rand_match = round(freqs_1[4]*freqs_2[4]*q**k)
+    print("total", intersec_len, "random", expected_rand_match)
     intersec_len -= expected_rand_match
     intersec_len = max(0,intersec_len)
     f_int.write(str(subs_1)+" "+str(subs_2)+" "+str(len(set1))+" "+str(len(set2))+" "+str(intersec_len)+"\n")
