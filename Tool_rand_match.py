@@ -124,12 +124,18 @@ def build_stats(input_dir, args):
 def clcFreqs():
     file1 = open(os.path.join(os.getcwd(),'stats.txt'),'r') 
     Lines = file1.readlines()
-    freq = []
+    freq = {}
     names = []
     for i in range(int(len(Lines)/2)):
-        freq.append(Lines[2*i+1].split())
+        freq[Lines[2*i]] = Lines[2*i+1].split()
         names.append(Lines[2*i])
-    return np.array(freq,dtype=float),names
+    freq_items = freq.items() #Get key-value pairs.
+    freq_sorted = sorted(freq_items)
+    names = sorted(names)
+    freqs = []
+    for item in freq_sorted:
+        freqs.append(item[1])
+    return np.array(freqs,dtype=float),names
 	
 #################################################
 # TK4 takes a 4*4 matrix, m, indexes are A,C,G,T
