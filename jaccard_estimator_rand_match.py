@@ -14,6 +14,7 @@ import math
 from math import comb
 import pandas as pd
 
+
 kmerdir="kmer_dir"
 encode_dir = "encodedfiles"
 base_str=['A','C','G','T']
@@ -307,8 +308,8 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
     w1 = (freqs_1[0]+freqs_1[3])/freqs_1[4]
     w2 = (freqs_2[0]+freqs_2[3])/freqs_2[4]
     #w = 0.6
-    print("w1", w1)
-    print("w2", w2)
+    #print("w1", w1)
+    #print("w2", w2)
     expected_rand_match = 0
 
     L1=freqs_1[4]
@@ -323,21 +324,21 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
             for j in range(k+1-i):
                 expected_rand_match += (1-(1-((1/2)**i)*((w1/2)**j)*((1-w1)/2)**(k-i-j))**(L1))*(1-(1-((1/2)**i)*((w2/2)**j)*((1-w2)/2)**(k-i-j))**(L2))*comb(k,i)*comb(k-i,j)
 
-        print("AC AG rand match = ",expected_rand_match)
+    #    print("AC AG rand match = ",expected_rand_match)
     else:
-        print("len = ",L1,L2)
+    #    print("len = ",L1,L2)
         if subs_1 == 0 and subs_2 == 3:
             #q = (3/2)*w**2 + (1/2) - w   
             for i in range(0,k+1):
                 expected_rand_match += (1-(1-w1**(k-i)*((1-w1)/2)**i)**(L1))*(1-(1-w2**(k-i)*((1-w2)/2)**i)**(L2))*comb(k,i)*(2**i)
-            print("AT rand match = ",expected_rand_match)
+    #        print("AT rand match = ",expected_rand_match)
         elif subs_1 == 1 and subs_2 == 2:
             #q = (3/2)*w**2 + 1 - 2*w
             for i in range(0,k+1):
                 expected_rand_match += (1-(1-(1-w1)**(k-i)*((w1)/2)**i)**(L1))*(1-(1-(1-w2)**(k-i)*((w2)/2)**i)**(L2))*comb(k,i)*(2**i)
-            print("CG rand match = ",expected_rand_match)
+    #        print("CG rand match = ",expected_rand_match)
         #expected_rand_match = round(freqs_1[4]*freqs_2[4]*q**k)
-    print("total", intersec_len, "random", expected_rand_match)
+    #print("total", intersec_len, "random", expected_rand_match)
     intersec_len -= expected_rand_match
     intersec_len = max(0,intersec_len)
     f_int.write(str(subs_1)+" "+str(subs_2)+" "+str(len(set1))+" "+str(len(set2))+" "+str(intersec_len)+"\n")
@@ -345,7 +346,7 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
     #------------------------
     #sys.stderr.write('Time taken for intersection {0}.\n'.format(time.time()-start))
     union_len = len(set1)+len(set2) - intersec_len
-    print(taxa1,taxa2,len(set1),len(set2),intersec_len)
+    #print(taxa1,taxa2,len(set1),len(set2),intersec_len)
     jaccard=intersec_len/union_len 
     fjac = open(filename,'a')
     fjac.write(str(jaccard)+" "+str(taxa1)+" "+str(taxa2)+"\n")
@@ -381,9 +382,8 @@ def preprocess(k, n_taxa, n_pool):
 def estimateJC(dist):
     return -(3/4)*np.log(1-(4/3)*dist)
     
-def distEstimatorMaster(k, n_taxa, n_pool,freqs,files_names):
+def distEstimatorMaster(k, n_taxa, n_pool,freqs):
     global base_str, encode_dir, encode_dir_replaced
-    print("freqs: ", freqs)
     
     #......... PREPROCESS .........
     preprocess(k,n_taxa, n_pool)
@@ -429,19 +429,8 @@ def distEstimatorMaster(k, n_taxa, n_pool,freqs,files_names):
     dist_matrices[10] = dist_matrices[3]
     dist_matrices[8] = dist_matrices[5]
     
-    csv_jf_jc_df = pd.DataFrame(estimateJC(dist_matrices[0]), columns = files_names)
-    csv_jf_jc_df.to_csv("ref-dist-mat-jf-jc"+".csv")
-    
-    print("Prev dist mat:",dist_matrices[0])
+    d_skmer_jf=estimateJC(dist_matrices[0])
     dist_matrices[0] = (2*dist_matrices[1] + 2* dist_matrices[2] + dist_matrices[3] + dist_matrices[5])/5
-    print("jc_dist = {0}".format(estimateJC(dist_matrices[0][0][1])))
+    
     file_csv.write(str(estimateJC(dist_matrices[0][0][1]))+",")
-    #print("here")
-    print("New dist mat:",dist_matrices[0])
-    print("AC: ",dist_matrices[1])
-    print("AG: ",dist_matrices[2])
-    print("AT: ",dist_matrices[3])
-    print("CG: ",dist_matrices[5])
-    #shutil.rmtree(encode_dir)
-    #shutil.rmtree(encode_dir_replaced)
-    return dist_matrices
+    return dist_matrices,d_skmer_jf
