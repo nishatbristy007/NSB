@@ -380,7 +380,7 @@ def preprocess(k, n_taxa, n_pool):
 def estimateJC(dist):
     return -(3/4)*np.log(1-(4/3)*dist)
     
-def distEstimatorMaster(k, n_taxa, n_pool,freqs):
+def distEstimatorMaster(k, n_taxa, n_pool,freqs,files_names):
     global base_str, encode_dir, encode_dir_replaced
     print("freqs: ", freqs)
     
@@ -427,6 +427,10 @@ def distEstimatorMaster(k, n_taxa, n_pool,freqs):
     dist_matrices[11] = dist_matrices[2]
     dist_matrices[10] = dist_matrices[3]
     dist_matrices[8] = dist_matrices[5]
+    
+    csv_jf_jc_df = pd.DataFrame(estimateJC(dist_matrices[0]), columns = files_names)
+    csv_jf_jc_df.to_csv("ref-dist-mat-jf-jc"+".csv")
+    
     print("Prev dist mat:",dist_matrices[0])
     dist_matrices[0] = (2*dist_matrices[1] + 2* dist_matrices[2] + dist_matrices[3] + dist_matrices[5])/5
     print("jc_dist = {0}".format(estimateJC(dist_matrices[0][0][1])))
