@@ -170,6 +170,9 @@ def TK4(m,w,Hamming):
     file_csv.write(str(ln1+ln2)+","+str(w)+","+str(R)+","+str(P)+","+str(TwoQ1)+","+str(TwoQ2)+"\n")
     return ln1+ln2
 
+def JC(dist):
+    return -(3/4)*np.log(1-(4/3)*dist)
+
 def replacer(replaced_dir,two_way_dir,x,y): 
         if os.path.exists(replaced_dir):
             shutil.rmtree(replaced_dir)
@@ -345,13 +348,14 @@ class Jellyfish:
     def jellyfish_runner(self):
         self.createKmerStats()
         
-        d_ = jac.distEstimatorMaster(self.k, self.n_taxa, self.n_pool,self.freqs)
+        d_ = jac.distEstimatorMaster(self.k, self.n_taxa, self.n_pool,self.freqs,self.file_names)
         
         d = 2*(d_[0] - d_[1:])
         for i in [2,4,7,9]:
             d[i] /= 2
     
         phylo_dist_mat = np.ndarray((self.n_taxa,self.n_taxa),dtype=float)
+        jc_dist_mat = np.ndarray((self.n_taxa,self.n_taxa),dtype=float)
         for i in range(self.n_taxa):
             phylo_dist_mat[i][i] = 0.0
         for i in range(self.n_taxa-1):
@@ -366,10 +370,11 @@ class Jellyfish:
                 f2=self.freqs[j]/self.freqs[j][4]
                 w=(f1[0]+f1[3]+f2[0]+f2[3])/2
                 phylo_dist_mat[i][j] = phylo_dist_mat[j][i] = TK4(m, w, d_[0][i][j])
+                jc_dist_mat[i][j] = jc_dist_mat[j][i] = JC(d_[0][i][j])
         print(phylo_dist_mat)
         
         #shutil.rmtree(self.jf_dir)
-        return phylo_dist_mat
+        return phylo_dist_mat,jc_dist_mat
         
 
 
@@ -388,14 +393,15 @@ def reference(args):
     if args.m == 1 or args.m == 2:  # Run Jellyfish
         print("STARTING FOR JELLYFISH SKETCH")
         jellyfish1 = Jellyfish(args, files_names, freqs)
-        dist_matrix = jellyfish1.jellyfish_runner()
+        dist_matrix,jc_matrix = jellyfish1.jellyfish_runner()
+        jc_df = pd.DataFrame(jc_matrix, columns = files_names)
+        jc_df.to_csv("ref-dist-mat-jc-"+args.input_dir.split('/')[0]+".csv")
     if args.m == 3:  # Run Mash 
         print('Runnung for the method with mash')
         mash = Mash_Skmer(args, files_names, freqs)
         dist_matrix = mash.mash_runner()
     dist_df = pd.DataFrame(dist_matrix, columns = files_names)
-    dist_df.to_csv("ref-dist-mat-"+args.input_dir.split('/')[0]+".csv")
-
+    dist_df.to_csv("ref-dist-mat-"+args.input_dir.split('/')[0]+".csv") 
 
 def main():
     # Input arguments parser
