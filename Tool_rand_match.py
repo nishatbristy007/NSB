@@ -145,12 +145,12 @@ def clcFreqs():
 # 2Q2 = CG/2
 # s1+s3 = w -(P+R)/2
 #################################################
-def TK4(m,freq,Hamming):   
+def TK4(m,w,Hamming):   
     #Hamming = 1-(2*jaccard/(1+jaccard))**(1/31)  
     if np.all(m==0):
         return 0
     sums = np.sum(m,axis = 1)
-    w = (freq[0]+freq[3])/freq[4]
+    #w = (freq[0]+freq[3])/freq[4]
     R = (m[0][1] + m[1][0] + m[2][3] + m[3][2])/4 	#R = (m[0][1]+m[2][3])/2
     P = (m[0][2] + m[2][0] + m[1][3] + m[3][1])/4	#P = (m[0][2]+m[1][3])/2
     TwoQ1 = (m[0][3] + m[3][0])/2				#TwoQ1 = m[0][3]/2
@@ -262,7 +262,10 @@ class Mash_Skmer:
                     [d[6][i][j],f[1] - (d[6][i][j]+d[3][i][j]+d[4][i][j]),d[3][i][j],d[4][i][j]],
                     [d[7][i][j],d[9][i][j],f[2] - (d[7][i][j]+d[9][i][j]+d[5][i][j]),d[5][i][j]],
                     [d[8][i][j],d[10][i][j],d[11][i][j],f[3] - (d[8][i][j]+d[10][i][j]+d[11][i][j])]]
-                phylo_dist_mat[i][j] = phylo_dist_mat[j][i] = TK4(m, f, d_[0][i][j])
+                f1 = self.freqs[i]/self.freqs[i][4]
+                f2 = self.freqs[j]/self.freqs[j][4]
+                w = (f1[0]+f1[3]+f2[0]+f2[3])/2
+                phylo_dist_mat[i][j] = phylo_dist_mat[j][i] = TK4(m, w, d_[0][i][j])
         print(phylo_dist_mat)
         
         #shutil.rmtree(self.mash_dir)
@@ -359,7 +362,10 @@ class Jellyfish:
                     [d[3][i][j],f[1] - (d[3][i][j]+d[4][i][j]+d[5][i][j]),d[4][i][j],d[5][i][j]],
                     [d[6][i][j],d[7][i][j],f[2] - (d[6][i][j]+d[7][i][j]+d[8][i][j]),d[8][i][j]],
                     [d[9][i][j],d[10][i][j],d[11][i][j],f[3] - (d[9][i][j]+d[10][i][j]+d[11][i][j])]]
-                phylo_dist_mat[i][j] = phylo_dist_mat[j][i] = TK4(m, f, d_[0][i][j])
+                f1=self.freqs[i]/self.freqs[i][4]
+                f2=self.freqs[j]/self.freqs[j][4]
+                w=(f1[0]+f1[3]+f2[0]+f2[3])/2
+                phylo_dist_mat[i][j] = phylo_dist_mat[j][i] = TK4(m, w, d_[0][i][j])
         print(phylo_dist_mat)
         
         #shutil.rmtree(self.jf_dir)
