@@ -12,6 +12,7 @@ import sys
 import multiprocessing as mp
 import math
 from math import comb
+import pandas as pd
 
 kmerdir="kmer_dir"
 encode_dir = "encodedfiles"
