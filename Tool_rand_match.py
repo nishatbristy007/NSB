@@ -310,7 +310,7 @@ class Jellyfish:
         call(["jellyfish", "count", "-m", str(self.k), "-s", str(self.s),pathname, "-o", jffile], stderr=open(os.devnull, 'w'))
         print(pathname+" - jellyfish count done")
         call(["jellyfish", "dump", "-c", jffile,"-o",outputdir], stderr=open(os.devnull, 'w'))
-        print("Jellyfish dump done")
+        print(pathname+" - Jellyfish dump done")
         os.remove(jffile)
         return 1
     
