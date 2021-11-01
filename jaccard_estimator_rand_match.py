@@ -433,4 +433,6 @@ def distEstimatorMaster(k, n_taxa, n_pool,freqs):
     dist_matrices[0] = (2*dist_matrices[1] + 2* dist_matrices[2] + dist_matrices[3] + dist_matrices[5])/5
     
     file_csv.write(str(estimateJC(dist_matrices[0][0][1]))+",")
+    shutil.rmtree(encode_dir)
+    shutil.rmtree(encode_dir_replaced)
     return dist_matrices,d_skmer_jf
