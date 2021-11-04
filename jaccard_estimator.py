@@ -396,7 +396,7 @@ def distEstimatorMaster(k, n_taxa, n_pool,freqs):
     dist_matrices[0] = estimateDistance(J1,k)
     fsave = open('dist.txt','w')
     #sys.stderr.write("dist = {0}".format(dist_matrices[0][0][1]))
-    file_csv.write(str(J1[0][1])+",")
+    #file_csv.write(str(J1[0][1])+",")
     fsave.write(str(dist_matrices[0]))
     fsave.write('\n')
     alphabetSize = len(base_str)
@@ -411,7 +411,7 @@ def distEstimatorMaster(k, n_taxa, n_pool,freqs):
                 token = base_str[i]+base_str[j]
                 encode_dir_replaced = "encodedfiles_replaced"+base_str[i]+base_str[j]
                 J2 = estimateJaccard(encode_dir_replaced,n_taxa, token, n_pool,freqs,i,j,k)
-                file_csv.write(str(J2[0][1])+",")
+                #file_csv.write(str(J2[0][1])+",")
                 dist_matrices[count] = estimateDistance(J2,k)
                 #print(i,j,J1[0][1], J2[0][1],dist_matrices[count][0][1])
                 #sys.stderr.write("dist = {0}".format(dist_matrices[count][0][1]))
@@ -432,7 +432,7 @@ def distEstimatorMaster(k, n_taxa, n_pool,freqs):
     d_skmer_jf=estimateJC(dist_matrices[0])
     dist_matrices[0] = (2*dist_matrices[1] + 2* dist_matrices[2] + dist_matrices[3] + dist_matrices[5])/5
     
-    file_csv.write(str(estimateJC(dist_matrices[0][0][1]))+",")
+    #file_csv.write(str(estimateJC(dist_matrices[0][0][1]))+",")
     shutil.rmtree(encode_dir)
     shutil.rmtree(encode_dir_replaced)
     return dist_matrices,d_skmer_jf
