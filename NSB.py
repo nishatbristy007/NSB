@@ -15,7 +15,7 @@ from subprocess import call, check_output, STDOUT
 import multiprocessing as mp
 from os import listdir
 from os.path import isfile, join
-import jaccard_estimator_rand_match as jac
+import jaccard_estimator as jac
 import pandas as pd
 
 __version__ = 'Tool 1.0.0'
