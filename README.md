@@ -20,7 +20,7 @@ NSB uses a base-substitution technique on **k-mers** to identify the frequencies
 - All the sequence files are needed to be saved in a directory, i.e. see **ref_dir** folder for example. 
 
 ### Output
-
+The output to NSB is a n\*n distance matrix, saved under the name **ref-dist-mat-nsb-ref_dir.txt**.
 ## Commands
 
 **For estimating distances with Jellyfish**
