@@ -24,8 +24,6 @@ The output to NSB is a n\*n distance matrix, saved under the name **ref-dist-mat
 
 ## Commands for running **NSB**
 
-**For estimating distances with Jellyfish**
-
 ```
 python NSB.py -m 2 -k 31 -s 100000 -p 4 ref_dir
 ```
