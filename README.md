@@ -21,7 +21,8 @@ NSB uses a base-substitution technique on **k-mers** to identify the frequencies
 
 ### Output
 The output to NSB is a n\*n distance matrix, saved under the name **ref-dist-mat-nsb-ref_dir.txt**.
-## Commands
+
+## Commands for running **NSB**
 
 **For estimating distances with Jellyfish**
 
