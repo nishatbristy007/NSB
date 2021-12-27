@@ -32,43 +32,32 @@ if os.path.isfile(csv_path):
 else:
     file_csv = open(csv_path,"w")
 
-def encode(scaf,k):
+    
+def encode4(scaf,k):
     L=len(scaf)
-    set1=[]
     mask=int(('1'*k),2)
     enc_b1={'A':0b0,'C':0b1,'G':0b1,'T':0b0}
     enc_b2={'A':0b1,'C':0b0,'G':0b1,'T':0b0}
-    for i in range(0,L-k+1):
-        z=0
-        z_1=0
-        z_2=0
-        for j in range(i,i+k):
-            z_1=(z_1<<1|enc_b1[scaf[j]])&mask
-            z_2=(z_2<<1|enc_b2[scaf[j]])&mask
-            z=(z_1<<k)|z_2
-        set1.append(z)
-    return set1
+    if L < k:
+        yield []
+    z=0
+    z_1=0
+    z_2=0
+    for i in range(0,k):
+        z_1=(z_1<<1|enc_b1[scaf[i]])&mask
+        z_2=(z_2<<1|enc_b2[scaf[i]])&mask
+        z=(z_1<<k)|z_2
+    yield z
+    for i in range(k,L):
+        z_1=(z_1<<1|enc_b1[scaf[i]])&mask
+        z_2=(z_2<<1|enc_b2[scaf[i]])&mask
+        z=(z_1<<k)|z_2
+        yield z
     
-def encode2(scaf,k):
-    set1=[]
-    L=len(scaf)
-    for i in range(0,L-k+1):
-        set1.append(encodeKmer(scaf[i:i+k]))
-    return set1
-
-def encodeKmer2(kmer):
-    kmer = re.sub(r'A','11',kmer)
-    kmer = re.sub(r'C','10',kmer)
-    kmer = re.sub(r'G','01',kmer)
-    kmer = re.sub(r'T','00',kmer)
-    return np.int64(int(kmer,2))
 
 def replaceEncodedKmer(kmer,regex_,encode_base,k_fmt):
     return np.int64(int(re.sub(regex_, encode_base, format(kmer,k_fmt)),2))
 
-def encodeKmer(kmer):
-    global first_bit_trans, second_bit_trans
-    return int(kmer.translate(first_bit_trans)+kmer.translate(second_bit_trans), 2)
 
 def A_to_C(x,size,mask):
     x1= (x & (mask<<size)) >> size
@@ -181,22 +170,6 @@ def T_to_G(x,size,mask):
     x2=x2 ^ xnew
     return (x1 << size) + x2
 
-def saveEncoding_(folderpath, file):
-    sys.stderr.write('Encoding {0}...\n'.format(file))
-    taxaname=file.split(".")[0]
-    kmers = open(folderpath+"/"+taxaname+".txt", 'r')
-    ###start=time.time()
-    set1 = np.array([encodeKmer(kmer.split()[0]) for kmer in kmers], dtype = np.int64)
-
-    ###sys.stderr.write('Time taken for encoding {0}.\n'.format(time.time()-start))
-    ###start = time.time()        
-    with open(encode_dir+"/"+taxaname+'.pickle', 'wb') as f:
-        pickle.dump({tmp_name:set1},f)
-    ###end=time.time()
-
-    ###sys.stderr.write('Encoding done for {0}.\n'.format(file))
-    # Deleteing the kmer file from kmer_dir
-    call(["rm",folderpath+"/"+file],stderr=open(os.devnull, 'w'))
 
 def saveEncoding(n_pool,two_way_dir,k):
     print('[NSB] Encoding sequences with {0} processors..'.format(str(n_pool)))
@@ -227,7 +200,7 @@ def saveEncoding2(two_way_dir,k,file):
         for line in f:
             
             if line[0]!='>':
-            	set1+=encode2(line.rstrip(),k)
+            	set1+=[i for i in encode4(line.rstrip(),k)]
     set1 = np.unique(np.array(set1, dtype = np.int64))
 
     sys.stderr.write('Time taken for encoding {0}.\n'.format(time.time()-start))
