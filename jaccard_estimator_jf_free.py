@@ -320,7 +320,7 @@ def estimateDistance(J, k,covs,seq_lens,seq_errs,read_lens,fl):
             wp = r_1[0] * r_2[0] * (gl_1 + gl_2) * 0.5
             zp = sum(r_1) * gl_1 + sum(r_2) * gl_2
             #d = max(0, 1 - (1.0 * zp * j / (wp * (1 + j))) ** (1.0 / k))
-            D[i][j] = max(0, 1 - (1.0 * zp * j / (wp * (1 + j))) ** (1.0 / k))
+            D[i][j] =  1 - (1.0 * zp * J[i][j] / (wp * (1 + J[i][j]))) ** (1.0 / k)
             #D[i][j] = 1 - ((2*J[i][j]/(1+J[i][j]))**(1/k))
     return D
 
