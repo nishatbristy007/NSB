@@ -39,6 +39,7 @@ def encode4(scaf,k):
     enc_b1={'A':0b0,'C':0b1,'G':0b1,'T':0b0}
     enc_b2={'A':0b1,'C':0b0,'G':0b1,'T':0b0}
     if L < k:
+        print(scaf)
         yield []
     else:
         z=0
@@ -197,7 +198,7 @@ def saveEncoding2(two_way_dir,k,file):
     taxaname=file.split(".")[0]
     set1=[]
     start=time.time()
-    print(file," starting")    
+#    print(file," starting")    
     with open(two_way_dir+"/"+file) as f:
         if ".fasta" in file or ".fa" in file or ".fna" in file:
             for line in f:
@@ -208,8 +209,11 @@ def saveEncoding2(two_way_dir,k,file):
             Lines=f.readlines()
             for i in range(len(Lines)):
                 if i%4==1:
-                    set1+=[j for j in encode4(Lines[i].rstrip(),k)]
-    print("Testing", file, len(set1))    
+                    #set1+=[j for j in encode4(Lines[i].rstrip(),k)]
+                    for j in encode4(Lines[i].rstrip(),k):
+                        if j !=[]:
+                            set1.append(j)
+#    print("Testing", file, len(set1))    
 #    if file=="Saccharomyces_eubayanus.fq":
 #        print(set1)
     set1 = np.unique(np.array(set1, dtype = np.int64))
