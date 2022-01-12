@@ -379,6 +379,7 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
     f_int.write(str(subs_1)+" "+str(subs_2)+" "+str(len(set1))+" "+str(len(set2))+" "+str(intersec_len)+"\n")
     # -- Count random matches ---
     q = 0.25
+    '''
     if fl==0:
         w1 = (freqs_1[0]+freqs_1[3])/freqs_1[4]
         w2 = (freqs_2[0]+freqs_2[3])/freqs_2[4]
@@ -387,6 +388,15 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
     else:
         w1 = (freqs_1[0]+freqs_1[3])/(2*l1)
         w2 = (freqs_2[0]+freqs_2[3])/(2*l2)
+        L1 = 2*l1
+        L2 = 2*l2
+    '''
+    w1 = (freqs_1[0]+freqs_1[3])/freqs_1[4]
+    w2 = (freqs_2[0]+freqs_2[3])/freqs_2[4]
+    if fl==0:
+        L1 = freqs_1[4]
+        L2 = freqs_2[4]
+    else:
         L1 = 2*l1
         L2 = 2*l2
     #w = 0.6
