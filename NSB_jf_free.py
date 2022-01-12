@@ -413,17 +413,12 @@ class Jellyfish:
                 f = self.freqs[i] if self.freqs[i][4] > self.freqs[j][4] else self.freqs[j] #(freq[i]+freq[j])/2
                 f /= f[4]
                 '''
-                if self.fl==0:
-                    f = self.freqs[i] if self.freqs[i][4] > self.freqs[j][4] else self.freqs[j] #(freq[i]+freq[j])/2
-                    f /= f[4]
-                    f1=self.freqs[i]/self.freqs[i][4]
-                    f2=self.freqs[j]/self.freqs[j][4]
-                else:
-                    f = self.freqs[i] if self.seq_lens[i] > self.seq_lens[j] else self.freqs[j] #(freq[i]+freq[j])/2
-                    l = self.seq_lens[i] if self.seq_lens[i] > self.seq_lens[j] else self.seq_lens[j]
-                    f /= (2*float(l))
-                    f1=self.freqs[i]/(2*float(self.seq_lens[i]))
-                    f2=self.freqs[j]/(2*float(self.seq_lens[j]))
+                
+                f = self.freqs[i] if self.freqs[i][4] > self.freqs[j][4] else self.freqs[j] #(freq[i]+freq[j])/2
+                f /= f[4]
+                f1=self.freqs[i]/self.freqs[i][4]
+                f2=self.freqs[j]/self.freqs[j][4]
+                
                 m = [[f[0] - (d[0][i][j]+d[1][i][j]+d[2][i][j]),d[0][i][j],d[1][i][j],d[2][i][j]],
                     [d[3][i][j],f[1] - (d[3][i][j]+d[4][i][j]+d[5][i][j]),d[4][i][j],d[5][i][j]],
                     [d[6][i][j],d[7][i][j],f[2] - (d[6][i][j]+d[7][i][j]+d[8][i][j]),d[8][i][j]],
