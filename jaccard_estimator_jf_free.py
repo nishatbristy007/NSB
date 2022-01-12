@@ -404,8 +404,8 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
         L1 = 2*l1
         L2 = 2*l2
     #w = 0.6
-    print("l1", L1)
-    print("l2", L2)
+    #print("l1", L1)
+    #print("l2", L2)
     expected_rand_match = 0
 
     
@@ -433,7 +433,7 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
                 expected_rand_match += (1-(1-(1-w1)**(k-i)*((w1)/2)**i)**(L1))*(1-(1-(1-w2)**(k-i)*((w2)/2)**i)**(L2))*comb(k,i)*(2**i)
     #        print("CG rand match = ",expected_rand_match)
         #expected_rand_match = round(freqs_1[4]*freqs_2[4]*q**k)
-    print("total", intersec_len, "random", expected_rand_match)
+    #print("total", intersec_len, "random", expected_rand_match)
     intersec_len -= expected_rand_match
     intersec_len = max(0,intersec_len)
     f_int.write(str(subs_1)+" "+str(subs_2)+" "+str(len(set1))+" "+str(len(set2))+" "+str(intersec_len)+"\n")
