@@ -44,6 +44,7 @@ def two_way_genome(savedir, path, file):
     s1 = ['A','T','C','G','N']
     s2 = ['T','A','G','C','N']
     if ".fasta" in file or ".fa" in file or ".fna" in file:
+        oldseq=""
         for line in Lines:
             oldseq += line
             if line.startswith(">") != True:
@@ -66,7 +67,7 @@ def two_way_genome(savedir, path, file):
 
         newseq2 = oldseq+'\n'+'\n'.join(newlist)
     elif ".fq" in file or ".fastq" in file:
-       
+        oldseq=""
         for i in range(len(Lines)):
             
             line=Lines[i]
@@ -121,26 +122,38 @@ def genome_stats(input_dir, entry):
     space_count=0
     lent=0
     with open(input_dir+"/"+entry) as f:
-        for line in f:
-            i=i+1
-            if line[0]!='>':
-                #lent=lent+len(line)
-                A_count=A_count+line.count("A")
-                C_count=C_count+line.count("C")
-                G_count=G_count+line.count("G")
-                T_count=T_count+line.count("T")
-                N_count=N_count+line.count("N")
-                #space_count=space_count+line.count("\n")
-                #s=set(line)
-                #print(s)
+        if ".fasta" in entry or ".fa" in entry or ".fna" in entry:
+            for line in f:
+                i=i+1
+                if line[0]!='>':
+                    #lent=lent+len(line)
+                    A_count=A_count+line.count("A")
+                    C_count=C_count+line.count("C")
+                    G_count=G_count+line.count("G")
+                    T_count=T_count+line.count("T")
+                    N_count=N_count+line.count("N")
+                    #space_count=space_count+line.count("\n")
+                    #s=set(line)
+                    #print(s)
+        elif ".fq" in entry or ".fastq" in entry:
+            Lines=f.readlines()
+            for i in range(len(Lines)):
+                line=Lines[i]
+                
+                if i%4==1:
+                    
+                    A_count=A_count+line.count("A")
+                    C_count=C_count+line.count("C")
+                    G_count=G_count+line.count("G")
+                    T_count=T_count+line.count("T")
+                    N_count=N_count+line.count("N")
 
-    lent=A_count+C_count+T_count+G_count+N_count
+    lent=A_count+C_count+T_count+G_count
     out_string=str(A_count)+" "+str(C_count)+" "+str(G_count)+" "+str(T_count)+" "+str(lent)+"\n"
     output = open(os.path.join(os.getcwd(),"stats.txt"),"a")
     output.write(entry+"\n")
     output.write(out_string)
     output.close()
-
 
 def build_stats(input_dir, args):
     
@@ -196,8 +209,8 @@ def TK4(m,w,Hamming):
     #print("Q1", TwoQ1)
     #print("Q2", TwoQ2)
     #print("R", R)
-    #print("S1",s1_s3)
-    #print("S2",s2_s4)
+    #print("S1", s1_s3)
+    #print("S2", s2_s4)
     ln1 = -1/4*np.log(((s1_s3-TwoQ1)*(s2_s4-TwoQ2)-((P-R)/2)**2)/(w*(1-w)))
     ln2 = -1/4*np.log((1-((P+R)/(2*w*(1-w))))**(8*w*(1-w)-1))
     file_csv.write(str(ln1+ln2)+","+str(w)+","+str(R)+","+str(P)+","+str(TwoQ1)+","+str(TwoQ2)+"\n")
@@ -396,14 +409,27 @@ class Jellyfish:
             phylo_dist_mat[i][i] = 0.0
         for i in range(self.n_taxa-1):
             for j in range(i+1,self.n_taxa):
+                '''
                 f = self.freqs[i] if self.freqs[i][4] > self.freqs[j][4] else self.freqs[j] #(freq[i]+freq[j])/2
                 f /= f[4]
+                '''
+                if self.fl==0:
+                    f = self.freqs[i] if self.freqs[i][4] > self.freqs[j][4] else self.freqs[j] #(freq[i]+freq[j])/2
+                    f /= f[4]
+                    f1=self.freqs[i]/self.freqs[i][4]
+                    f2=self.freqs[j]/self.freqs[j][4]
+                else:
+                    f = self.freqs[i] if self.seq_lens[i] > self.seq_lens[j] else self.freqs[j] #(freq[i]+freq[j])/2
+                    l = self.seq_lens[i] if self.seq_lens[i] > self.seq_lens[j] else self.seq_lens[j]
+                    f /= (2*float(l))
+                    f1=self.freqs[i]/(2*float(self.seq_lens[i]))
+                    f2=self.freqs[j]/(2*float(self.seq_lens[j]))
                 m = [[f[0] - (d[0][i][j]+d[1][i][j]+d[2][i][j]),d[0][i][j],d[1][i][j],d[2][i][j]],
                     [d[3][i][j],f[1] - (d[3][i][j]+d[4][i][j]+d[5][i][j]),d[4][i][j],d[5][i][j]],
                     [d[6][i][j],d[7][i][j],f[2] - (d[6][i][j]+d[7][i][j]+d[8][i][j]),d[8][i][j]],
                     [d[9][i][j],d[10][i][j],d[11][i][j],f[3] - (d[9][i][j]+d[10][i][j]+d[11][i][j])]]
-                f1=self.freqs[i]/self.freqs[i][4]
-                f2=self.freqs[j]/self.freqs[j][4]
+                #f1=self.freqs[i]/self.freqs[i][4]
+                #f2=self.freqs[j]/self.freqs[j][4]
                 w=(f1[0]+f1[3]+f2[0]+f2[3])/2
                 phylo_dist_mat[i][j] = phylo_dist_mat[j][i] = TK4(m, w, d_[0][i][j])
                 jc_dist_mat[i][j] = jc_dist_mat[j][i] = JC(d_[0][i][j])
@@ -455,7 +481,7 @@ def reference(args):
         fl=1
     print('[Tool] Building 2way genome with {0} processors..'.format(str(args.p)))
     twowaydir = two_way_genome_builder(args.input_dir, os.path.join(os.getcwd(), 'ref_dir_2way'), args)
-    subprocess.run(["skmer","reference","-k",str(args.k),"-s",str(args.s),twowaydir.split("/")[-1]])
+    #subprocess.run(["skmer","reference","-k",str(args.k),"-s",str(args.s),twowaydir.split("/")[-1]])
     covs, seq_lens, seq_errs, read_lens = cov_err_reader(args.input_dir)
     print('[Tool] Building stats with {0} processors..'.format(str(args.p)))
     build_stats(os.path.join(os.getcwd(), 'ref_dir_2way'), args)
