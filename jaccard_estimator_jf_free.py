@@ -40,19 +40,20 @@ def encode4(scaf,k):
     enc_b2={'A':0b1,'C':0b0,'G':0b1,'T':0b0}
     if L < k:
         yield []
-    z=0
-    z_1=0
-    z_2=0
-    for i in range(0,k):
-        z_1=(z_1<<1|enc_b1[scaf[i]])&mask
-        z_2=(z_2<<1|enc_b2[scaf[i]])&mask
-        z=(z_1<<k)|z_2
-    yield z
-    for i in range(k,L):
-        z_1=(z_1<<1|enc_b1[scaf[i]])&mask
-        z_2=(z_2<<1|enc_b2[scaf[i]])&mask
-        z=(z_1<<k)|z_2
+    else:
+        z=0
+        z_1=0
+        z_2=0
+        for i in range(0,k):
+            z_1=(z_1<<1|enc_b1[scaf[i]])&mask
+            z_2=(z_2<<1|enc_b2[scaf[i]])&mask
+            z=(z_1<<k)|z_2
         yield z
+        for i in range(k,L):
+            z_1=(z_1<<1|enc_b1[scaf[i]])&mask
+            z_2=(z_2<<1|enc_b2[scaf[i]])&mask
+            z=(z_1<<k)|z_2
+            yield z
     
 
 def replaceEncodedKmer(kmer,regex_,encode_base,k_fmt):
@@ -196,7 +197,7 @@ def saveEncoding2(two_way_dir,k,file):
     taxaname=file.split(".")[0]
     set1=[]
     start=time.time()
-    
+    print(file," starting")    
     with open(two_way_dir+"/"+file) as f:
         if ".fasta" in file or ".fa" in file or ".fna" in file:
             for line in f:
@@ -207,10 +208,12 @@ def saveEncoding2(two_way_dir,k,file):
             Lines=f.readlines()
             for i in range(len(Lines)):
                 if i%4==1:
-                    
-                    set1+=[i for i in encode4(Lines[i].rstrip(),k)]
+                    set1+=[j for j in encode4(Lines[i].rstrip(),k)]
+    print("Testing", file, len(set1))    
+#    if file=="Saccharomyces_eubayanus.fq":
+#        print(set1)
     set1 = np.unique(np.array(set1, dtype = np.int64))
-
+    print(file)
     sys.stderr.write('Time taken for encoding {0}.\n'.format(time.time()-start))
     start = time.time()        
     with open(encode_dir+"/"+taxaname+'.pickle', 'wb') as f:
@@ -288,7 +291,9 @@ def saveReplacedEncoding(k, i, j, n_pool):
 def dist_temp_func(cov, eps, k, l, cov_thres):
     if cov == "NA":
         return [1.0, 0]
-    p = np.exp(-k * eps)
+    #print(k,eps,type(eps))
+    p = np.exp(-1*k*eps)
+    #print(p)
     copy_thres = int(1.0 * cov / cov_thres) + 1
     lam = 1.0 * cov * (l - k) / l
     if copy_thres == 1 or p == 1:
@@ -298,30 +303,35 @@ def dist_temp_func(cov, eps, k, l, cov_thres):
         return [1 - np.exp(-lam * p) * sum(s), 0]
             
 def estimateDistance(J, k,covs,seq_lens,seq_errs,read_lens,fl):
+    print("J\n",J)
     if fl==0:
         return 1 - ((2*J/(1+J))**(1/k))
     D = np.zeros((len(J), len(J)))
     cov_thres=5.0
     for i in range(len(J)):
         for j in range(len(J)): 
-            gl_1 = seq_lens[i]
-            gl_2 = seq_lens[j]
-            if gl_1 == "NA" or gl_2 == "NA":
-                gl_1 = 1
-                gl_2 = 1
-            cov_1 = covs[i]
-            cov_2 = covs[j]
-            eps_1 = seq_errs[i]
-            eps_2 = seq_errs[j]
-            l_1 = read_lens[i]
-            l_2 = read_lens[j]
-            r_1 = dist_temp_func(cov_1, eps_1, k, l_1, cov_thres)
-            r_2 = dist_temp_func(cov_2, eps_2, k, l_2, cov_thres)
-            wp = r_1[0] * r_2[0] * (gl_1 + gl_2) * 0.5
-            zp = sum(r_1) * gl_1 + sum(r_2) * gl_2
-            #d = max(0, 1 - (1.0 * zp * j / (wp * (1 + j))) ** (1.0 / k))
-            D[i][j] =  1 - (1.0 * zp * J[i][j] / (wp * (1 + J[i][j]))) ** (1.0 / k)
+            if i!=j:
+                gl_1 = 2*int(seq_lens[i])
+                gl_2 = 2*int(seq_lens[j])
+                if gl_1 == "NA" or gl_2 == "NA":
+                    gl_1 = 1
+                    gl_2 = 1
+                cov_1 = float(covs[i])
+                cov_2 = float(covs[j])
+                print("covs",cov_1,cov_2)
+                eps_1 = float(seq_errs[i])
+                eps_2 = float(seq_errs[j])
+                l_1 = int(read_lens[i])
+                l_2 = int(read_lens[j])
+                r_1 = dist_temp_func(cov_1, eps_1, k, l_1, cov_thres)
+                r_2 = dist_temp_func(cov_2, eps_2, k, l_2, cov_thres)
+                wp = r_1[0] * r_2[0] * (gl_1 + gl_2) * 0.5
+                zp = sum(r_1) * gl_1 + sum(r_2) * gl_2
+                #d = max(0, 1 - (1.0 * zp * j / (wp * (1 + j))) ** (1.0 / k))
+
+                D[i][j] =  1 - (1.0 * zp * J[i][j] / (wp * (1 + J[i][j]))) ** (1.0 / k)
             #D[i][j] = 1 - ((2*J[i][j]/(1+J[i][j]))**(1/k))
+    print(D)
     return D
 
 def sortintersection(x,y):
@@ -356,7 +366,7 @@ def readmatrix(filename, n_taxa):
         f.close()
         return J
 
-def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,subs_2,k):
+def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,subs_2,k,fl,l1,l2):
     with open(folderpath+'/'+files[taxa1],'rb') as f:
         set1 = pickle.load(f)[tmp_name]
     with open(folderpath+'/'+files[taxa2],'rb') as f:
@@ -369,16 +379,22 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
     f_int.write(str(subs_1)+" "+str(subs_2)+" "+str(len(set1))+" "+str(len(set2))+" "+str(intersec_len)+"\n")
     # -- Count random matches ---
     q = 0.25
-    
-    w1 = (freqs_1[0]+freqs_1[3])/freqs_1[4]
-    w2 = (freqs_2[0]+freqs_2[3])/freqs_2[4]
+    if fl==0:
+        w1 = (freqs_1[0]+freqs_1[3])/freqs_1[4]
+        w2 = (freqs_2[0]+freqs_2[3])/freqs_2[4]
+        L1 = freqs_1[4]
+        L2 = freqs_2[4]
+    else:
+        w1 = (freqs_1[0]+freqs_1[3])/(2*l1)
+        w2 = (freqs_2[0]+freqs_2[3])/(2*l2)
+        L1 = 2*l1
+        L2 = 2*l2
     #w = 0.6
-    #print("w1", w1)
-    #print("w2", w2)
+    print("l1", L1)
+    print("l2", L2)
     expected_rand_match = 0
 
-    L1=freqs_1[4]
-    L2=freqs_2[4]
+    
     #L1=2555170
     #L2=4339805
     if subs_1 ==0 and (subs_2==1 or subs_2==2):
@@ -403,7 +419,7 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
                 expected_rand_match += (1-(1-(1-w1)**(k-i)*((w1)/2)**i)**(L1))*(1-(1-(1-w2)**(k-i)*((w2)/2)**i)**(L2))*comb(k,i)*(2**i)
     #        print("CG rand match = ",expected_rand_match)
         #expected_rand_match = round(freqs_1[4]*freqs_2[4]*q**k)
-    #print("total", intersec_len, "random", expected_rand_match)
+    print("total", intersec_len, "random", expected_rand_match)
     intersec_len -= expected_rand_match
     intersec_len = max(0,intersec_len)
     f_int.write(str(subs_1)+" "+str(subs_2)+" "+str(len(set1))+" "+str(len(set2))+" "+str(intersec_len)+"\n")
@@ -417,14 +433,14 @@ def clcJaccard(folderpath, files, taxa1, taxa2,filename,freqs_1,freqs_2,subs_1,s
     fjac.write(str(jaccard)+" "+str(taxa1)+" "+str(taxa2)+"\n")
     fjac.close()
 
-def estimateJaccard(folderpath, n_taxa,token, n_pool,freqs,subs_1,subs_2,k):
+def estimateJaccard(folderpath, n_taxa,token, n_pool,freqs,subs_1,subs_2,k,fl,seq_lens):
     sys.stderr.write("[Tool] Estimating jaccard using {0} processors\n".format(n_pool)) 
     files = sorted(os.listdir(folderpath))
     jaccard_matrix = np.zeros(( n_taxa,n_taxa))
     pool_sketch = mp.Pool(n_pool)
     
     filename = 'savejac'+token+'.txt'
-    results_sketch = [pool_sketch.apply_async(clcJaccard, args=(folderpath,files,i,j,filename,freqs[i],freqs[j],subs_1, subs_2,k,)) for i in range(n_taxa-1) for j in range(i+1,n_taxa)]#(len(pathnames))]
+    results_sketch = [pool_sketch.apply_async(clcJaccard, args=(folderpath,files,i,j,filename,freqs[i],freqs[j],subs_1, subs_2,k,fl,float(seq_lens[i]),float(seq_lens[j]),)) for i in range(n_taxa-1) for j in range(i+1,n_taxa)]#(len(pathnames))]
     for result in results_sketch:
         result.get(9999999)
     pool_sketch.close()
@@ -457,7 +473,7 @@ def distEstimatorMaster(k, n_taxa, n_pool,freqs,two_way_dir,covs,seq_lens,seq_er
     #......... DIST ...............
     dist_matrices = np.zeros((base_subs,n_taxa,n_taxa))
     
-    J1 = estimateJaccard(encode_dir,n_taxa,"",n_pool,freqs,0,0,k)
+    J1 = estimateJaccard(encode_dir,n_taxa,"",n_pool,freqs,0,0,k,fl,seq_lens)
     dist_matrices[0] = estimateDistance(J1,k,covs,seq_lens,seq_errs,read_lens,fl)
     fsave = open('dist.txt','w')
     #sys.stderr.write("dist = {0}".format(dist_matrices[0][0][1]))
@@ -475,7 +491,7 @@ def distEstimatorMaster(k, n_taxa, n_pool,freqs,two_way_dir,covs,seq_lens,seq_er
             if i!=j:
                 token = base_str[i]+base_str[j]
                 encode_dir_replaced = "encodedfiles_replaced"+base_str[i]+base_str[j]
-                J2 = estimateJaccard(encode_dir_replaced,n_taxa, token, n_pool,freqs,i,j,k)
+                J2 = estimateJaccard(encode_dir_replaced,n_taxa, token, n_pool,freqs,i,j,k,fl,seq_lens)
                 #file_csv.write(str(J2[0][1])+",")
                 dist_matrices[count] = estimateDistance(J2,k,covs,seq_lens,seq_errs,read_lens,fl)
                 #print(i,j,J1[0][1], J2[0][1],dist_matrices[count][0][1])
