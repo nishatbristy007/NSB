@@ -476,7 +476,7 @@ def reference(args):
         fl=1
     print('[Tool] Building 2way genome with {0} processors..'.format(str(args.p)))
     twowaydir = two_way_genome_builder(args.input_dir, os.path.join(os.getcwd(), 'ref_dir_2way'), args)
-    #subprocess.run(["skmer","reference","-k",str(args.k),"-s",str(args.s),twowaydir.split("/")[-1]])
+    subprocess.run(["skmer","reference","-k",str(args.k),"-s",str(args.s),args.input_dir.split("/")[-1]])
     covs, seq_lens, seq_errs, read_lens = cov_err_reader(args.input_dir)
     print('[Tool] Building stats with {0} processors..'.format(str(args.p)))
     build_stats(os.path.join(os.getcwd(), 'ref_dir_2way'), args)
