@@ -22,7 +22,7 @@ NSB uses a base-substitution technique on **k-mers** to identify the frequencies
 ### Output
 The output to NSB is a n\*n distance matrix, saved under the name **ref-dist-mat-nsb-ref_dir.txt**.
 
-## Commands for running **NSB**
+## Commands for running **NSB** 
 
 ```
 python NSB.py -m 2 -k 31 -s 100000 -p 4 ref_dir
