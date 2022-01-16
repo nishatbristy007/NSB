@@ -12,11 +12,12 @@ NSB uses a base-substitution technique on **k-mers** to identify the frequencies
 
 - Python 3
 - NumPy, Pandas, Pickle
+- [Skmer](https://github.com/shahab-sarmashghi/Skmer)
 
 ## Input and Output formats of NSB
 
 ### Input
-- NSB takes input in **fasta** and **fna** formats.
+- NSB takes input in **fasta**, **fastq** and **fna** formats.
 - All the sequence files are needed to be saved in a directory, i.e. see **ref_dir** folder for example. 
 
 ### Output
