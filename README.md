@@ -22,9 +22,12 @@ NSB uses a base-substitution technique on **k-mers** to identify the frequencies
 ### Output
 The output to NSB is a n\*n distance matrix, saved under the name **ref-dist-mat-nsb-ref_dir.txt**.
 
-## Commands for running **NSB** 
+## Commands for running **NSB** on genome assemblies and skims
 
 ```
-python NSB.py -m 2 -k 31 -s 100000 -p 4 ref_dir
+skmer reference -k 31 -s 100000 ref_dir
+python NSB_jf_free.py -m 2 -k 31 -s 100000 -p 4 ref_dir
 ```
+For installing skmer, please follow the [skmer installation](https://github.com/shahab-sarmashghi/Skmer) process.
+
 
