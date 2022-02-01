@@ -14,6 +14,12 @@ NSB uses a base-substitution technique on **k-mers** to identify the frequencies
 - NumPy, Pandas, Pickle
 - [Skmer](https://github.com/shahab-sarmashghi/Skmer)
 
+## Installation
+
+You can install NSB using the installation script `install.sh` we provide. It creates a new Anaconda environment called `nsb`. After environment is created, active it using the following command:
+
+`conda activate nsb`
+
 ## Input and Output formats of NSB
 
 ### Input
@@ -26,9 +32,8 @@ The output to NSB is a n\*n distance matrix, saved under the name **ref-dist-mat
 ## Commands for running **NSB** on genome assemblies and skims
 
 ```
-skmer reference -k 31 -s 100000 ref_dir
-python NSB_jf_free.py -m 2 -k 31 -s 100000 -p 4 ref_dir
+python NSB_jf_free.py reference -m 2 -k 31 -s 100000 -p 4 ref_dir
 ```
-For installing skmer, please follow the [skmer installation](https://github.com/shahab-sarmashghi/Skmer) process.
+
 
 
